@@ -1,0 +1,59 @@
+def caesar_encrypt(plaintext, key):
+    encrypted_text = ""
+    for char in plaintext:
+        if char.isalpha():
+            shifted = ord(char) + key
+            if char.islower():
+                if shifted > ord('z'):
+                    shifted -= 26
+            elif char.isupper():
+                if shifted > ord('Z'):
+                    shifted -= 26
+            encrypted_text += chr(shifted)
+        else:
+            encrypted_text += char
+    return encrypted_text
+
+def caesar_decrypt(ciphertext, key):
+    decrypted_text = ""
+    for char in ciphertext:
+        if char.isalpha():
+            shifted = ord(char) - key
+            if char.islower():
+                if shifted < ord('a'):
+                    shifted += 26
+            elif char.isupper():
+                if shifted < ord('A'):
+                    shifted += 26
+            decrypted_text += chr(shifted)
+        else:
+            decrypted_text += char
+    return decrypted_text
+
+def ciphertext_only_attack(ciphertext):
+    print("Performing Ciphertext-Only Attack:")
+    for i in range(26):
+        decrypted_text = caesar_decrypt(ciphertext, i)
+        print(f"With key {i}: {decrypted_text}")
+
+def known_plaintext_attack(ciphertext, plaintext):
+    print("Performing Known-Plaintext Attack:")
+    for i in range(26):
+        decrypted_text = caesar_decrypt(ciphertext, i)
+        if plaintext in decrypted_text:
+            print(f"With key {i}: {decrypted_text}")
+
+
+# Example usage:
+plaintext = "Hello, this is a secret message."
+key = 3
+ciphertext = caesar_encrypt(plaintext, key)
+
+print("Original Plaintext:", plaintext)
+print("Encrypted Text:", ciphertext)
+
+# Ciphertext-Only Attack
+ciphertext_only_attack(ciphertext)
+
+# Known-Plaintext Attack
+known_plaintext_attack(ciphertext, "Hello")
