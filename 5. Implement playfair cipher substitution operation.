@@ -1,0 +1,67 @@
+import string
+
+def prepare_input(text):
+    # Convert the text to uppercase and remove spaces
+    text = text.upper().replace(" ", "")
+    # Replace 'J' with 'I' (standard rule in Playfair cipher)
+    text = text.replace("J", "I")
+    return text
+
+def generate_key_square(key):
+    # Create a key square (5x5 matrix) using the given key
+    alphabet = string.ascii_uppercase.replace("J", "")
+    key = prepare_input(key)
+    key = key + alphabet
+    key_square = []
+    for i in range(5):
+        row = key[i*5:(i+1)*5]
+        key_square.append(list(row))
+    return key_square
+
+def find_position(key_square, letter):
+    # Find the position of a letter in the key square
+    for i in range(5):
+        for j in range(5):
+            if key_square[i][j] == letter:
+                return i, j
+
+def encrypt_pair(key_square, pair):
+    # Encrypt a pair of letters
+    a, b = pair[0], pair[1]
+    row1, col1 = find_position(key_square, a)
+    row2, col2 = find_position(key_square, b)
+    # Same row
+    if row1 == row2:
+        return key_square[row1][(col1 + 1) % 5] + key_square[row2][(col2 + 1) % 5]
+    # Same column
+    if col1 == col2:
+        return key_square[(row1 + 1) % 5][col1] + key_square[(row2 + 1) % 5][col2]
+    # Form a rectangle
+    return key_square[row1][col2] + key_square[row2][col1]
+
+def encrypt(plaintext, key):
+    key_square = generate_key_square(key)
+    plaintext = prepare_input(plaintext)
+    # Prepare plaintext by grouping letters into pairs
+    pairs = []
+    for i in range(0, len(plaintext), 2):
+        if i == len(plaintext) - 1:
+            pairs.append(plaintext[i] + "X")
+        elif plaintext[i] == plaintext[i+1]:
+            pairs.append(plaintext[i] + "X")
+            pairs.append(plaintext[i+1] + "Q")
+        else:
+            pairs.append(plaintext[i:i+2])
+    # Encrypt each pair
+    ciphertext = ""
+    for pair in pairs:
+        ciphertext += encrypt_pair(key_square, pair)
+    return ciphertext
+
+# Example usage:
+plaintext = "HELLO"
+key = "PLAYFAIR EXAMPLE"
+ciphertext = encrypt(plaintext, key)
+print("Plaintext:", plaintext)
+print("Key:", key)
+print("Ciphertext:", ciphertext)
